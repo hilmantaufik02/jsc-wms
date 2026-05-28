@@ -1,0 +1,3 @@
+-- File ini sudah usang (obsolete) dan aman untuk dihapus.
+-- Semua script instalasi / migrasi tabel baru sudah digabungkan secara utuh 
+-- ke dalam file utama: database/jsc_wms.sql
