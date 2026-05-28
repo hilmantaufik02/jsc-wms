@@ -28,45 +28,71 @@ if (!$product) {
       font-family: 'Outfit', sans-serif;
     }
 
+    /* KONTROL LAYOUT PREVIEW (DI LAYAR BROWSER) */
+    .label-box {
+      width: 29mm;
+      height: 27mm;
+      border: 1px dashed #cbd5e1;
+      margin: 4px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      box-sizing: border-box;
+      background: #fff;
+    }
+
+    .qrcode-img canvas,
+    .qrcode-img img {
+      margin: 0 auto;
+    }
+
+    /* KONTROL KHUSUS SAAT CETAK / PRINT */
     @media print {
-      .no-print {
-        display: none !important;
+      @page {
+        size: 92mm 150mm;
+        margin: 0;
+        /* Menghilangkan margin bawaan browser agar ukuran presisi */
       }
 
       body {
         background: white !important;
         margin: 0;
         padding: 0;
+        width: 92mm;
+        height: 150mm;
       }
-    }
 
-    .label-box {
-      width: 50mm;
-      /* Standar label barcode thermal */
-      height: 30mm;
-      border: 1px dashed #cbd5e1;
-      margin: 8px;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 4px;
-      box-sizing: border-box;
-      background: #fff;
-      page-break-inside: avoid;
-    }
+      .no-print {
+        display: none !important;
+      }
 
-    /* CSS tambahan agar QR Code & teks SKU pas di tengah */
-    .qrcode-img canvas,
-    .qrcode-img img {
-      margin: 0 auto;
-    }
+      /* Container diatur menjadi Grid 3 Kolom */
+      #labels-container {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        width: 92mm;
+        height: 150mm;
+        box-sizing: border-box;
+        padding: 2mm 2mm;
+        /* Menghindari area tidak tercetak (unprintable area) printer */
+        gap: 1mm 1mm;
+        /* Jarak antar label */
+        page-break-inside: avoid;
+      }
 
-    @media print {
       .label-box {
-        border: none;
-        margin: 0;
-        padding: 2px;
+        width: 28mm !important;
+        height: 27mm !important;
+        border: none !important;
+        /* Hilangkan garis putus-putus saat print */
+        margin: 0 !important;
+        padding: 1px !important;
+        box-sizing: border-box;
+        overflow: hidden;
+        page-break-inside: avoid;
+        display: flex !important;
       }
     }
   </style>
@@ -85,7 +111,7 @@ if (!$product) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
             </svg>
           </div>
-          Cetak Label QR Code
+          Cetak Label QR Code (92x150)
         </h1>
         <p class="text-slate-500 text-sm mt-1 ml-13 font-medium">Produk: <span class="text-slate-700 font-bold"><?= htmlspecialchars($product['name']) ?></span></p>
       </div>
@@ -112,23 +138,24 @@ if (!$product) {
       </form>
     </div>
 
-    <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-sm border border-slate-200 text-center print:shadow-none print:border-none print:p-0 print:bg-transparent min-h-[400px]">
-      <div id="labels-container" class="flex flex-wrap justify-center print:block print:w-[30mm]">
+    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 text-center print:shadow-none print:border-none print:p-0 print:bg-transparent">
+
+      <div id="labels-container" class="flex flex-wrap justify-center">
         <?php for ($i = 0; $i < $qty; $i++): ?>
-          <div class="label-box print:w-[50mm] print:h-[30mm] print:mb-2">
-            <div class="text-[10px] font-extrabold text-slate-800 text-center truncate w-full mb-1 leading-tight tracking-tight uppercase">
-              <?= htmlspecialchars(substr($product['name'], 0, 25)) ?><?= strlen($product['name']) > 25 ? '..' : '' ?>
+          <div class="label-box">
+            <div class="text-[8px] font-extrabold text-slate-800 text-center truncate w-full mb-0.5 leading-tight tracking-tight uppercase">
+              <?= htmlspecialchars(substr($product['name'], 0, 20)) ?><?= strlen($product['name']) > 20 ? '..' : '' ?>
             </div>
 
             <div class="qrcode-img" data-sku="<?= htmlspecialchars($product['sku']) ?>"></div>
 
-            <div class="text-[8px] font-bold text-slate-700 mt-0.5 tracking-wider">
+            <div class="text-[7px] font-bold text-slate-700 mt-0.5 tracking-wider leading-none">
               <?= htmlspecialchars($product['sku']) ?>
             </div>
 
             <?php if ($product['size']): ?>
-              <div class="text-[8px] font-bold text-slate-600 mt-0.5 uppercase border border-slate-300 px-1 rounded-sm">
-                SIZE: <?= htmlspecialchars($product['size']) ?>
+              <div class="text-[6.5px] font-bold text-slate-600 mt-0.5 uppercase border border-slate-300 px-1 rounded-sm scale-90 origin-center leading-none">
+                <?= htmlspecialchars($product['size']) ?>
               </div>
             <?php endif; ?>
           </div>
@@ -137,11 +164,6 @@ if (!$product) {
 
       <?php if ($qty == 0): ?>
         <div class="flex flex-col items-center justify-center py-10">
-          <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-3">
-            <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-            </svg>
-          </div>
           <p class="text-slate-400 font-medium text-sm">Masukkan jumlah label dan tekan Update</p>
         </div>
       <?php endif; ?>
@@ -150,20 +172,19 @@ if (!$product) {
 
   <script>
     window.onload = function() {
-      // Ambil semua element dengan class qrcode-img
       const qrContainers = document.querySelectorAll('.qrcode-img');
 
       qrContainers.forEach(function(container) {
         const skuText = container.getAttribute('data-sku');
 
-        // Generate QR Code untuk setiap elemen loop
+        // Ukuran QR Code dikecilkan ke 45px agar pas di dalam label 28mm x 27mm
         new QRCode(container, {
           text: skuText,
-          width: 55, // Ukuran lebar QR Code (Disesuaikan dengan tinggi label 30mm)
-          height: 55, // Ukuran tinggi QR Code
+          width: 45,
+          height: 45,
           colorDark: "#000000",
           colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M // Level toleransi error medium
+          correctLevel: QRCode.CorrectLevel.M
         });
       });
     }
